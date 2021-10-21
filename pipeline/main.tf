@@ -1,50 +1,83 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.0"
-    }
-  }
-}
-
-provider "aws" {
-  region = "us-east-1"
-}
+data "aws_caller_identity" "current" {}
 
 locals {
-  repository_name = var.repository_name
-  build_name      = local.repository_name
-  image_tag       = var.image_tag
-  bucket_name = "flask-app-bb97ca27"
-  tagPrefixList   = concat(var.tagPrefixList, ["ts"])
-  log_tracker_defaults = {
-    initial_timeout = 180
-    update_timeout  = 300
-    sleep_interval  = 30
-    init_wait_time  = 15
-    max_retry_count = 4
-    print_dots      = false
-  }
-  log_tracker = merge(local.log_tracker_defaults, var.log_tracker)
+  container_repo_name = "flask-app-ecr-repo"
 }
 
-module "s3_bucket" {
+# CodeBuild
+module "flask-app-project" {
 
-  source = "cloudposse/s3-bucket/aws"
+  source = "lgallard/codebuild/aws"
 
-  acl                      = "private"
-  enabled                  = true
-  user_enabled             = true
-  versioning_enabled       = false
-  allowed_bucket_actions   = ["s3:GetObject", "s3:ListBucket", "s3:GetBucketLocation"]
-  name                     = local.bucket_name
-  stage                    = "test"
-  namespace                = "eg"
+  name        = "flask-app"
+  description = "Minimal flask app"
 
-  privileged_principal_arns = {
-    "arn:aws:iam::406310692709:root" = [""]
+  # CodeBuild Source
+  codebuild_source_version = "main"
+  codebuild_source = {
+    type            = "GITHUB"
+    location        = "https://github.com/matohin/flask-app.git"
+    git_clone_depth = 1
+
+    git_submodules_config = {
+      fetch_submodules = true
+    }
   }
-  privileged_principal_actions = [
-    "s3:*"
-  ]
+
+  # Environment
+  environment = {
+    compute_type    = "BUILD_GENERAL1_SMALL"
+    image           = "aws/codebuild/standard:2.0"
+    type            = "LINUX_CONTAINER"
+    privileged_mode = true
+
+    # Environment variables
+    variables = [
+      {
+        name  = "IMAGE_REPO_NAME"
+        value = "${data.aws_caller_identity.current.account_id}.dkr.ecr.us-west-1.amazonaws.com/${local.container_repo_name}"
+      },
+      {
+        name  = "AWS_DEFAULT_REGION"
+        value = var.aws_region
+      },
+      {
+        name  = "IMAGE_TAG"
+        value = "dev"
+      },
+    ]
+  }
+
+  # Artifacts
+  artifacts = {
+    location  = aws_s3_bucket.flask-app-project.bucket
+    type      = "S3"
+    path      = "/"
+    packaging = "ZIP"
+  }
+
+  # Cache
+  cache = {
+    type     = "S3"
+    location = "${aws_s3_bucket.flask-app-project.bucket}/cache"
+  }
+
+  # Logs
+  s3_logs = {
+    status   = "ENABLED"
+    location = "${aws_s3_bucket.flask-app-project.bucket}/build-log"
+  }
+
+  # Tags
+  tags = {
+    Environment = "dev"
+    owner       = "development-team"
+  }
+
+}
+
+# S3
+resource "aws_s3_bucket" "flask-app-project" {
+  bucket = "flask-app-bucket-2afcb572"
+  acl    = "private"
 }
