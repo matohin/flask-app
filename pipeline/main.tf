@@ -2,6 +2,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   container_repo_name = "flask-app-ecr-repo"
+  account_id = "${data.aws_caller_identity.current.account_id}"
 }
 
 # CodeBuild
@@ -33,18 +34,23 @@ module "flask-app-project" {
 
     # Environment variables
     variables = [
-      {
-        name  = "IMAGE_REPO_NAME"
-        value = "${data.aws_caller_identity.current.account_id}.dkr.ecr.us-west-1.amazonaws.com/${local.container_repo_name}"
-      },
+
       {
         name  = "AWS_DEFAULT_REGION"
         value = var.aws_region
       },
       {
-        name  = "IMAGE_TAG"
-        value = "dev"
+        name  = "AWS_ACCOUNT_ID"
+        value = local.account_id
       },
+      {
+        name  = "IMAGE_REPO_NAME"
+        value = local.container_repo_name
+      },
+      {
+        name  = "IMAGE_TAG"
+        value = "latest"
+      }
     ]
   }
 
@@ -70,8 +76,8 @@ module "flask-app-project" {
 
   # Tags
   tags = {
-    Environment = "dev"
-    owner       = "development-team"
+    Environment = "project"
+    owner       = "flask-app"
   }
 
 }
