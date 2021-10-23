@@ -17,13 +17,13 @@ module "ecs-fargate" {
   source = "umotif-public/ecs-fargate/aws"
   version = "~> 6.1.0"
 
-  name_prefix        = "ecs-fargate-example"
-  vpc_id             = "vpc-abasdasd132"
-  private_subnet_ids = ["subnet-abasdasd132123", "subnet-abasdasd132123132"]
+  name_prefix        = "flask-app-fargate"
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnets
 
   cluster_id         = aws_ecs_cluster.cluster.id
 
-  task_container_image   = "marcincuber/2048-game:latest"
+  task_container_image   = "${module.ecr.repository_url}:latest"
   task_definition_cpu    = 256
   task_definition_memory = 512
 

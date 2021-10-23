@@ -48,7 +48,7 @@ module "flask-app-project" {
         value = local.container_repo_name
       },
       {
-        name  = "IMAGE_TAG"
+        name  = ""
         value = "latest"
       }
     ]
