@@ -32,7 +32,7 @@ module "ecs-fargate" {
 
   target_groups = [
     {
-      target_group_name = "tg-fargate-example"
+      target_group_name = "flask-app-group"
       container_port    = 80
     }
   ]
@@ -43,7 +43,7 @@ module "ecs-fargate" {
   }
 
   tags = {
-    Environment = "test"
-    Project = "Test"
+    Environment = "dev"
+    Project = "flask-app"
   }
 }
