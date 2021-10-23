@@ -68,13 +68,13 @@ module "flask-app-project" {
     location = "${aws_s3_bucket.flask-app-project.bucket}/cache"
   }
 
-  # Logs
+  // Logs
   s3_logs = {
     status   = "ENABLED"
     location = "${aws_s3_bucket.flask-app-project.bucket}/build-log"
   }
 
-  # Tags
+  // Tags
   tags = {
     Environment = "project"
     owner       = "flask-app"
