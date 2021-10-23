@@ -19,3 +19,13 @@ resource "aws_lb_listener" "alb_80" {
     target_group_arn = module.ecs-fargate.target_group_arn[0]
   }
 }
+
+resource "aws_security_group_rule" "alb_ingress_80" {
+  security_group_id = module.alb.security_group_id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 80
+  to_port           = 80
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
+}
