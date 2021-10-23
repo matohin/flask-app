@@ -3,3 +3,4 @@ pipeline/.terraform/
 pipeline/terraform.tfstate
 pipeline/.terraform.lock.hcl
 pipeline/terraform.tfstate.backup
+pipeline/.terraform.tfstate.lock.info

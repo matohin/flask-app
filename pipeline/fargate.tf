@@ -18,8 +18,8 @@ module "ecs-fargate" {
   version = "~> 6.1.0"
 
   name_prefix        = "flask-app-fargate"
-  vpc_id             = module.vpc.vpc_id
-  private_subnet_ids = module.vpc.private_subnets
+  vpc_id             = data.aws_vpc.default.id
+  private_subnet_ids = data.aws_subnet_ids.all.ids
 
   cluster_id         = aws_ecs_cluster.cluster.id
 
@@ -28,7 +28,7 @@ module "ecs-fargate" {
   task_definition_memory = 512
 
   task_container_port             = 80
-  task_container_assign_public_ip = true
+  task_container_assign_public_ip = false
 
   target_groups = [
     {
@@ -46,4 +46,8 @@ module "ecs-fargate" {
     Environment = "dev"
     Project = "flask-app"
   }
+
+  depends_on = [
+    module.alb
+  ]
 }
