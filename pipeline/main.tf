@@ -3,9 +3,9 @@ data "aws_caller_identity" "current" {}
 locals {
   container_repo_name = "flask-app-ecr-repo"
   account_id = "${data.aws_caller_identity.current.account_id}"
+  service_name = "flask-app"
 }
 
-# CodeBuild
 module "flask-app-project" {
 
   source = "lgallard/codebuild/aws"
@@ -54,7 +54,7 @@ module "flask-app-project" {
     ]
   }
 
-  # Artifacts
+  // Artifacts
   artifacts = {
     location  = aws_s3_bucket.flask-app-project.bucket
     type      = "S3"
@@ -62,7 +62,7 @@ module "flask-app-project" {
     packaging = "ZIP"
   }
 
-  # Cache
+  // Cache
   cache = {
     type     = "S3"
     location = "${aws_s3_bucket.flask-app-project.bucket}/cache"
@@ -82,8 +82,9 @@ module "flask-app-project" {
 
 }
 
-# S3
+
 resource "aws_s3_bucket" "flask-app-project" {
   bucket = "flask-app-bucket-2afcb572"
   acl    = "private"
 }
+
