@@ -1,10 +1,9 @@
-plan
-+100 docker file
-150 code pipeline
-200 docker build
-300 cluster def
-400 2 clusters parameterized
-500 update task definition
+# Minimal flask app
 
-testing with pytest
-predictions
+Solution intended to demonstrate IaC approach to deployment for a minimal flask application.
+
+## Solution
+
+Solution consists of CodeBuild, ALB, ECS Fargate task and minimal network setup.
+
+The soluion is succesfully deployed to AWS `eu-north-1` region, [here](http://flask-app-alb-1708220936.eu-north-1.elb.amazonaws.com/) is an ALB endpoint.
